@@ -12,6 +12,6 @@ Select which of your team is present, choose which of your services are importan
 
 Head to the latest release page and download the binary for your chosen Operating System, convince your company managed laptop that you know what you're doing and it should let you run the binary and hey presto:
 
-![](media/how2.mov)
+https://github.com/user-attachments/assets/8ee3f901-d59d-4ce6-a8a7-6e58c204c4aa
 
 _* Note that some features are not yet available. We accept no responsibility for overpromising or for upset corporate device management staff_
