@@ -43,7 +43,6 @@ jobs:
         path: target/release/${{ matrix.artifact_name }}
 
   create-release:
-    if: github.event_name == 'release'
     needs: build
     runs-on: ubuntu-latest
     steps:
