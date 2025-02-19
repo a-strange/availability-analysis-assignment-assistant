@@ -48,10 +48,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            availability-analysis-assistant-macos/availability-analysis-assistant
+            availability-analysis-assignment-assistant-macos/availability-analysis-assignment-assistant
