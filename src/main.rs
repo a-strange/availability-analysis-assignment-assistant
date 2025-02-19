@@ -1,0 +1,138 @@
+use eframe::egui;
+use rand::seq::SliceRandom;
+
+fn main() -> eframe::Result {
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default().with_inner_size([640.0, 480.0]),
+        ..Default::default()
+    };
+    eframe::run_native(
+        "Availability Analysis Assingment Assistant",
+        options,
+        Box::new(|cc| {
+            // Use the dark theme
+            cc.egui_ctx.set_theme(egui::Theme::Dark);
+            // This gives us image support:
+            egui_extras::install_image_loaders(&cc.egui_ctx);
+
+            Ok(Box::<AnalysisAssistant>::default())
+        }),
+    )
+}
+
+struct Service {
+    name: String,
+    importance: u8,
+}
+
+struct AnalysisAssistant {
+    names: Vec<(String, bool)>,
+    display_text: String,
+    services: Vec<Service>,
+}
+
+impl AnalysisAssistant {}
+
+impl Default for AnalysisAssistant {
+    fn default() -> Self {
+        Self {
+            names: vec![
+                ("Dane".to_string(), false),
+                ("Dhandapani".to_string(), false),
+                ("Li Chien".to_string(), false),
+                ("Andrea".to_string(), false),
+                ("Andrew".to_string(), false),
+            ],
+            display_text: String::new(),
+            services: vec![
+                Service {
+                    name: "verification-api".to_string(),
+                    importance: 1,
+                },
+                Service {
+                    name: "connections-api".to_string(),
+                    importance: 1,
+                },
+                Service {
+                    name: "auth-server".to_string(),
+                    importance: 1,
+                },
+                Service {
+                    name: "signup-plus".to_string(),
+                    importance: 1,
+                },
+                Service {
+                    name: "resource-api".to_string(),
+                    importance: 1,
+                },
+            ],
+        }
+    }
+}
+
+impl eframe::App for AnalysisAssistant {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::Window::new("Custom Keypad")
+            .default_pos([100.0, 100.0])
+            .title_bar(true)
+            .show(ctx, |ui| {
+                ui.heading("Team Members");
+                for (name, enabled) in &mut self.names {
+                    ui.horizontal(|ui| {
+                        ui.label(name.to_string());
+                        ui.checkbox(enabled, "");
+                    });
+                }
+
+                ui.add_space(20.0);
+                ui.heading("Services");
+                for service in &mut self.services {
+                    ui.horizontal(|ui| {
+                        ui.label(&service.name);
+                        ui.add(
+                            egui::Slider::new(&mut service.importance, 0..=5).text("Importance"),
+                        );
+                    });
+                }
+
+                if ui.button("Show enabled names").clicked() {
+                    let mut enabled_names: Vec<&str> = self
+                        .names
+                        .iter()
+                        .filter(|(_, enabled)| *enabled)
+                        .map(|(name, _)| name.as_str())
+                        .collect();
+
+                    let mut service_pool: Vec<String> = self
+                        .services
+                        .iter()
+                        .flat_map(|service| {
+                            std::iter::repeat(service.name.clone())
+                                .take(service.importance as usize)
+                        })
+                        .collect();
+
+                    if !enabled_names.is_empty() && !service_pool.is_empty() {
+                        let mut rng = rand::thread_rng();
+                        enabled_names.shuffle(&mut rng);
+                        service_pool.shuffle(&mut rng);
+
+                        let mut assignments = Vec::new();
+                        for name in enabled_names {
+                            if let Some(service) = service_pool.pop() {
+                                assignments.push(format!("{} → {}", name, service));
+                            } else {
+                                assignments.push(format!("{} → No service available", name));
+                            }
+                        }
+
+                        self.display_text = assignments.join("\n");
+                    } else {
+                        self.display_text =
+                            "Please select at least one team member and service".to_string();
+                    }
+                }
+                ui.text_edit_multiline(&mut self.display_text);
+            });
+    }
+}
