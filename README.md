@@ -10,7 +10,7 @@ Select which of your team is present, choose which of your services are importan
 
 ## How can I do this?
 
-Head to the latest release page and download the binary for your chosen Operating System, convince your company managed laptop that you know what you're doing and it should let you run the binary and hey presto:
+Head to the [latest](https://github.com/a-strange/availability-analysis-assignment-assistant/releases/latest) release page and download the binary for your chosen Operating System, convince your company managed laptop that you know what you're doing and it should let you run the binary (_you may need to `chmod +x`_) and hey presto:
 
 https://github.com/user-attachments/assets/8ee3f901-d59d-4ce6-a8a7-6e58c204c4aa
 
