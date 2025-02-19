@@ -18,8 +18,8 @@ jobs:
         os: [macos-latest]
         include:
           - os: macos-latest
-            artifact_name: availability-analysis-assistant
-            asset_name: availability-analysis-assistant-macos
+            artifact_name: availability-analysis-assignment-assistant
+            asset_name: availability-analysis-assignment-assistant-macos
 
     steps:
     - uses: actions/checkout@v3
