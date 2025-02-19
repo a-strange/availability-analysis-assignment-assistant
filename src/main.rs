@@ -10,11 +10,8 @@ fn main() -> eframe::Result {
         "Availability Analysis Assingment Assistant",
         options,
         Box::new(|cc| {
-            // Use the dark theme
             cc.egui_ctx.set_theme(egui::Theme::Dark);
-            // This gives us image support:
             egui_extras::install_image_loaders(&cc.egui_ctx);
-
             Ok(Box::<AnalysisAssistant>::default())
         }),
     )
@@ -72,8 +69,9 @@ impl Default for AnalysisAssistant {
 
 impl eframe::App for AnalysisAssistant {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::Window::new("Custom Keypad")
-            .default_pos([100.0, 100.0])
+        egui::Window::new("Availability Analysis Assingment Assistant")
+            .auto_sized()
+            .resizable(false)
             .title_bar(true)
             .show(ctx, |ui| {
                 ui.heading("Team Members");
@@ -95,7 +93,7 @@ impl eframe::App for AnalysisAssistant {
                     });
                 }
 
-                if ui.button("Show enabled names").clicked() {
+                if ui.button("Assign services").clicked() {
                     let mut enabled_names: Vec<&str> = self
                         .names
                         .iter()
@@ -120,9 +118,9 @@ impl eframe::App for AnalysisAssistant {
                         let mut assignments = Vec::new();
                         for name in enabled_names {
                             if let Some(service) = service_pool.pop() {
-                                assignments.push(format!("{} → {}", name, service));
+                                assignments.push(format!("{} => {}", name, service));
                             } else {
-                                assignments.push(format!("{} → No service available", name));
+                                assignments.push(format!("{} => No service available", name));
                             }
                         }
 
