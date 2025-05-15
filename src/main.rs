@@ -39,6 +39,7 @@ impl Default for AnalysisAssistant {
                 ("Li Chien".to_string(), false),
                 ("Andrea".to_string(), false),
                 ("Andrew".to_string(), false),
+                ("Michael".to_string(), false),
             ],
             display_text: String::new(),
             services: vec![
