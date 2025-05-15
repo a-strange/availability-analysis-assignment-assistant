@@ -20,21 +20,17 @@ jobs:
           - os: macos-latest
             artifact_name: availability-analysis-assignment-assistant
             asset_name: availability-analysis-assignment-assistant-macos
+            target: x86_64-apple-darwin
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install Linux dependencies
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev libxkbcommon-dev libssl-dev
-
-    - name: Install Rust toolchain
-      uses: dtolnay/rust-toolchain@stable
-
-    - name: Build Release
-      run: cargo build --verbose --release
+    - name: Build
+      uses: actions-rs/cargo@v1
+      with:
+        use-cross: true
+        command: build
+        args: --verbose --release --target ${{ matrix.target }}
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
