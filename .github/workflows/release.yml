@@ -6,9 +6,6 @@ on:
   release:
     types: [created]
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
   build:
     name: Build ${{ matrix.os }}
@@ -40,7 +37,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.asset_name }}
-        path: target/release/${{ matrix.artifact_name }}
+        path: target/${{matrix.target}}/release/${{ matrix.artifact_name }}
 
   create-release:
     permissions: write-all
