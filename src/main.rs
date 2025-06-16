@@ -63,6 +63,14 @@ impl Default for AnalysisAssistant {
                     name: "resource-api".to_string(),
                     importance: 1,
                 },
+                Service {
+                    name: "payouts-flow-orchestrator".to_string(),
+                    importance: 1,
+                },
+                Service {
+                    name: "clients-api".to_string(),
+                    importance: 1,
+                },
             ],
         }
     }
@@ -102,6 +110,14 @@ impl eframe::App for AnalysisAssistant {
                         .map(|(name, _)| name.as_str())
                         .collect();
 
+                    // Get unique services first, then build full pool
+                    let unique_services: Vec<String> = self
+                        .services
+                        .iter()
+                        .filter(|service| service.importance > 0)
+                        .map(|service| service.name.clone())
+                        .collect();
+
                     let mut service_pool: Vec<String> = self
                         .services
                         .iter()
@@ -117,7 +133,28 @@ impl eframe::App for AnalysisAssistant {
                         service_pool.shuffle(&mut rng);
 
                         let mut assignments = Vec::new();
-                        for name in enabled_names {
+                        let mut assigned_services = std::collections::HashSet::new();
+
+                        // First pass: ensure each unique service is assigned at least once
+                        for name in &enabled_names {
+                            if let Some(service) = unique_services
+                                .iter()
+                                .find(|s| !assigned_services.contains(*s))
+                            {
+                                assignments.push(format!("{} => {}", name, service));
+                                assigned_services.insert(service.clone());
+                                // Remove this service from the pool
+                                if let Some(pos) = service_pool.iter().position(|x| x == service) {
+                                    service_pool.remove(pos);
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+
+                        // Second pass: assign remaining services to remaining people
+                        let remaining_names = &enabled_names[assignments.len()..];
+                        for name in remaining_names {
                             if let Some(service) = service_pool.pop() {
                                 assignments.push(format!("{} => {}", name, service));
                             } else {
