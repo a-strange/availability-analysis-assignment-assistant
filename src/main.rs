@@ -78,6 +78,7 @@ impl Default for AnalysisAssistant {
 
 impl eframe::App for AnalysisAssistant {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        ctx.set_theme(egui::Theme::Light);
         egui::Window::new("Availability Analysis Assingment Assistant")
             .auto_sized()
             .resizable(false)
@@ -86,22 +87,33 @@ impl eframe::App for AnalysisAssistant {
                 ui.heading("Team Members");
                 for (name, enabled) in &mut self.names {
                     ui.horizontal(|ui| {
-                        ui.label(name.to_string());
-                        ui.checkbox(enabled, "");
+                        ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                            ui.label(name.to_string());
+                        });
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            ui.checkbox(enabled, "");
+                        });
                     });
                 }
 
                 ui.add_space(20.0);
                 ui.heading("Services");
+
                 for service in &mut self.services {
                     ui.horizontal(|ui| {
-                        ui.label(&service.name);
-                        ui.add(
-                            egui::Slider::new(&mut service.importance, 0..=5).text("Importance"),
-                        );
+                        ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                            ui.label(&service.name);
+                        });
+                        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                            ui.add(
+                                egui::Slider::new(&mut service.importance, 0..=3)
+                                    .text("Importance"),
+                            );
+                        });
                     });
                 }
 
+                ui.add_space(10.0);
                 if ui.button("Assign services").clicked() {
                     let mut enabled_names: Vec<&str> = self
                         .names
@@ -168,7 +180,10 @@ impl eframe::App for AnalysisAssistant {
                             "Please select at least one team member and service".to_string();
                     }
                 }
-                ui.text_edit_multiline(&mut self.display_text);
+                ui.add_space(10.0);
+                ui.centered_and_justified(|ui| {
+                    ui.text_edit_multiline(&mut self.display_text);
+                });
             });
     }
 }
