@@ -3,11 +3,11 @@ use rand::seq::SliceRandom;
 
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([640.0, 480.0]),
+        viewport: egui::ViewportBuilder::default().with_resizable(true),
         ..Default::default()
     };
     eframe::run_native(
-        "Availability Analysis Assingment Assistant",
+        "Availability Analysis Assignment Assistant",
         options,
         Box::new(|cc| {
             cc.egui_ctx.set_theme(egui::Theme::Dark);
@@ -79,10 +79,10 @@ impl Default for AnalysisAssistant {
 impl eframe::App for AnalysisAssistant {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         ctx.set_theme(egui::Theme::Light);
-        egui::Window::new("Availability Analysis Assingment Assistant")
+        egui::Window::new("Availability Analysis Assignment Assistant")
             .auto_sized()
-            .resizable(false)
-            .title_bar(true)
+            .resizable(true)
+            .title_bar(false)
             .show(ctx, |ui| {
                 ui.heading("Team Members");
                 for (name, enabled) in &mut self.names {
@@ -182,7 +182,10 @@ impl eframe::App for AnalysisAssistant {
                 }
                 ui.add_space(10.0);
                 ui.centered_and_justified(|ui| {
-                    ui.text_edit_multiline(&mut self.display_text);
+                    ui.add_sized(
+                        [ui.available_width(), 40.0],
+                        egui::TextEdit::multiline(&mut self.display_text),
+                    );
                 });
             });
     }
