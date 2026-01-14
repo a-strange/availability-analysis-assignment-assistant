@@ -4,7 +4,7 @@ use rand::seq::SliceRandom;
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([350.0, 500.0])
+            .with_inner_size([350.0, 550.0])
             .with_resizable(true),
         ..Default::default()
     };
@@ -48,12 +48,12 @@ impl Default for AnalysisAssistant {
     fn default() -> Self {
         Self {
             names: vec![
-                ("Dane".to_string(), false),
-                ("Dhandapani".to_string(), false),
-                ("Li Chien".to_string(), false),
-                ("Andrea".to_string(), false),
-                ("Andrew".to_string(), false),
-                ("Michael".to_string(), false),
+                ("Dane".to_string(), true),
+                ("Dhandapani".to_string(), true),
+                ("Li Chien".to_string(), true),
+                ("Andrea".to_string(), true),
+                ("Andrew".to_string(), true),
+                ("Michael".to_string(), true),
             ],
             display_text: String::new(),
             services: vec![
@@ -118,6 +118,7 @@ impl eframe::App for AnalysisAssistant {
 
                 for service in &mut self.services {
                     ui.horizontal(|ui| {
+                        ui.set_min_height(20.0);
                         ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
                             ui.label(&service.name);
                         });
@@ -236,6 +237,12 @@ impl eframe::App for AnalysisAssistant {
                             self.display_text =
                                 "Please select at least one team member and service".to_string();
                         }
+                    }
+
+                    // Copy button with 5px gap
+                    ui.add_space(5.0);
+                    if ui.small_button("📋").clicked() {
+                        ui.output_mut(|o| o.copied_text = self.display_text.clone());
                     }
 
                     // Toggle button on the right side
