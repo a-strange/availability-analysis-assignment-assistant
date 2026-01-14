@@ -1,6 +1,9 @@
 use eframe::egui;
 use rand::seq::SliceRandom;
 
+// Version is injected at build time by build.rs
+const VERSION: &str = env!("APP_VERSION");
+
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
