@@ -12,7 +12,18 @@ fn main() -> eframe::Result {
         "Availability Analysis Assignment Assistant",
         options,
         Box::new(|cc| {
-            cc.egui_ctx.set_theme(egui::Theme::Dark);
+            // Load Manrope-Medium font
+            let mut fonts = egui::FontDefinitions::default();
+            fonts.font_data.insert(
+                "manrope".to_owned(),
+                egui::FontData::from_static(include_bytes!("../assets/Manrope-Medium.ttf")).into(),
+            );
+            fonts.families.get_mut(&egui::FontFamily::Proportional)
+                .unwrap()
+                .insert(0, "manrope".to_owned());
+            cc.egui_ctx.set_fonts(fonts);
+
+            cc.egui_ctx.set_theme(egui::Theme::Light);
             egui_extras::install_image_loaders(&cc.egui_ctx);
             Ok(Box::<AnalysisAssistant>::default())
         }),
@@ -82,7 +93,6 @@ impl Default for AnalysisAssistant {
 
 impl eframe::App for AnalysisAssistant {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        ctx.set_theme(egui::Theme::Light);
         egui::Window::new("Availability Analysis Assignment Assistant")
             .auto_sized()
             .resizable(true)
