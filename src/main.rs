@@ -57,6 +57,7 @@ struct AnalysisAssistant {
     display_text: String,
     services: Vec<Service>,
     detailed_mode: bool,
+    logo_texture: Option<egui::TextureHandle>,
 }
 
 impl AnalysisAssistant {}
@@ -104,18 +105,59 @@ impl Default for AnalysisAssistant {
                 },
             ],
             detailed_mode: false,
+            logo_texture: None,
         }
     }
 }
 
 impl eframe::App for AnalysisAssistant {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // Load logo texture once
+        if self.logo_texture.is_none() {
+            let logo_bytes = include_bytes!("../assets/logo.png");
+            let image = image::load_from_memory(logo_bytes).unwrap();
+            let size = [image.width() as _, image.height() as _];
+            let image_buffer = image.to_rgba8();
+            let pixels = image_buffer.as_flat_samples();
+            let color_image = egui::ColorImage::from_rgba_unmultiplied(size, pixels.as_slice());
+            self.logo_texture = Some(ctx.load_texture("logo", color_image, Default::default()));
+        }
+
         egui::Window::new("Availability Analysis Assignment Assistant")
             .auto_sized()
             .resizable(true)
             .title_bar(false)
             .show(ctx, |ui| {
                 egui::Frame::none().inner_margin(5.0).show(ui, |ui| {
+                    // Draw logo in background at 40% of window width, centered over Team Members
+                    if let Some(texture) = &self.logo_texture {
+                        let available_rect = ui.available_rect_before_wrap();
+                        let window_width = available_rect.width();
+
+                        // Calculate logo size maintaining aspect ratio
+                        let logo_width = window_width * 0.4;
+                        let texture_size = texture.size_vec2();
+                        let aspect_ratio = texture_size.y / texture_size.x;
+                        let logo_height = logo_width * aspect_ratio;
+
+                        // Center the logo horizontally, position at top of Team Members section
+                        let logo_x = available_rect.left() + (window_width - logo_width) / 2.0;
+                        let logo_y = available_rect.top() + 60.0; // Offset below heading
+
+                        let logo_rect = egui::Rect::from_min_size(
+                            egui::pos2(logo_x, logo_y),
+                            egui::vec2(logo_width, logo_height),
+                        );
+
+                        let mut mesh = egui::Mesh::with_texture(texture.id());
+                        mesh.add_rect_with_uv(
+                            logo_rect,
+                            egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0)),
+                            egui::Color32::from_rgba_unmultiplied(255, 255, 255, 255),
+                        );
+                        ui.painter().add(egui::Shape::mesh(mesh));
+                    }
+
                     ui.heading("Team Members");
                     for (name, enabled) in &mut self.names {
                         ui.horizontal(|ui| {
