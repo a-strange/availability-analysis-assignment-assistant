@@ -7,7 +7,7 @@ const VERSION: &str = env!("APP_VERSION");
 fn main() -> eframe::Result {
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
-            .with_inner_size([350.0, 550.0])
+            .with_inner_size([400.0, 600.0])
             .with_resizable(true),
         ..Default::default()
     };
@@ -53,6 +53,7 @@ fn main() -> eframe::Result {
 struct Service {
     name: String,
     importance: u8,
+    custom: bool,
 }
 
 struct AnalysisAssistant {
@@ -61,6 +62,7 @@ struct AnalysisAssistant {
     services: Vec<Service>,
     detailed_mode: bool,
     logo_texture: Option<egui::TextureHandle>,
+    new_service_input: String,
 }
 
 impl AnalysisAssistant {}
@@ -78,37 +80,17 @@ impl Default for AnalysisAssistant {
             ],
             display_text: String::new(),
             services: vec![
-                Service {
-                    name: "verification-api".to_string(),
-                    importance: 1,
-                },
-                Service {
-                    name: "connections-api".to_string(),
-                    importance: 1,
-                },
-                Service {
-                    name: "auth-server".to_string(),
-                    importance: 1,
-                },
-                Service {
-                    name: "signup-plus".to_string(),
-                    importance: 1,
-                },
-                Service {
-                    name: "resource-api".to_string(),
-                    importance: 1,
-                },
-                Service {
-                    name: "payouts-flow-orchestrator".to_string(),
-                    importance: 1,
-                },
-                Service {
-                    name: "clients-api".to_string(),
-                    importance: 1,
-                },
+                Service { name: "verification-api".to_string(), importance: 1, custom: false },
+                Service { name: "connections-api".to_string(), importance: 1, custom: false },
+                Service { name: "auth-server".to_string(), importance: 1, custom: false },
+                Service { name: "signup-plus".to_string(), importance: 1, custom: false },
+                Service { name: "resource-api".to_string(), importance: 1, custom: false },
+                Service { name: "payouts-flow-orchestrator".to_string(), importance: 1, custom: false },
+                Service { name: "clients-api".to_string(), importance: 1, custom: false },
             ],
             detailed_mode: false,
             logo_texture: None,
+            new_service_input: String::new(),
         }
     }
 }
@@ -182,15 +164,14 @@ impl eframe::App for AnalysisAssistant {
                     ui.add_space(20.0);
                     ui.heading("Services");
 
-                    for service in &mut self.services {
+                    let mut remove_index: Option<usize> = None;
+                    for (i, service) in self.services.iter_mut().enumerate() {
                         ui.horizontal(|ui| {
                             ui.set_min_height(20.0);
-                            ui.with_layout(
-                                egui::Layout::left_to_right(egui::Align::Center),
-                                |ui| {
-                                    ui.label(&service.name);
-                                },
-                            );
+                            ui.label(&service.name);
+                            if service.custom && ui.small_button("X").clicked() {
+                                remove_index = Some(i);
+                            }
                             ui.with_layout(
                                 egui::Layout::right_to_left(egui::Align::Center),
                                 |ui| {
@@ -208,6 +189,37 @@ impl eframe::App for AnalysisAssistant {
                             );
                         });
                     }
+                    if let Some(i) = remove_index {
+                        self.services.remove(i);
+                    }
+
+                    ui.add_space(6.0);
+                    ui.horizontal(|ui| {
+                        let (add_clicked, enter_pressed) = ui.with_layout(
+                            egui::Layout::right_to_left(egui::Align::Center),
+                            |ui| {
+                                let clicked = ui.button("+").clicked();
+                                let input = ui.add(
+                                    egui::TextEdit::singleline(&mut self.new_service_input)
+                                        .hint_text("Add service...")
+                                        .desired_width(ui.available_width()),
+                                );
+                                let enter = input.lost_focus()
+                                    && ui.input(|i| i.key_pressed(egui::Key::Enter));
+                                (clicked, enter)
+                            },
+                        ).inner;
+                        if (add_clicked || enter_pressed)
+                            && !self.new_service_input.trim().is_empty()
+                        {
+                            self.services.push(Service {
+                                name: self.new_service_input.trim().to_string(),
+                                importance: 1,
+                                custom: true,
+                            });
+                            self.new_service_input.clear();
+                        }
+                    });
 
                     ui.add_space(10.0);
                     ui.horizontal(|ui| {
