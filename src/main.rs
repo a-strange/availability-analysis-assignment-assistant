@@ -12,7 +12,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
     eframe::run_native(
-        "Availability Analysis Assignment Assistant",
+        &format!("Availability Analysis Assignment Assistant v{VERSION}"),
         options,
         Box::new(|cc| {
             // Load Manrope-Medium font
@@ -31,7 +31,7 @@ fn main() -> eframe::Result {
             cc.egui_ctx.set_theme(egui::Theme::Light);
 
             // Customize colors
-            let mut style = (*cc.egui_ctx.style()).clone();
+            let mut style = (*cc.egui_ctx.global_style()).clone();
             let button_color = egui::Color32::from_rgb(231, 230, 255);
             style.visuals.widgets.inactive.weak_bg_fill = button_color;
             style.visuals.widgets.inactive.bg_fill = button_color;
@@ -42,7 +42,7 @@ fn main() -> eframe::Result {
             style.visuals.extreme_bg_color = button_color;
             style.visuals.window_fill = egui::Color32::WHITE;
             style.visuals.override_text_color = Some(egui::Color32::from_rgb(6, 6, 6));
-            cc.egui_ctx.set_style(style);
+            cc.egui_ctx.set_global_style(style);
 
             egui_extras::install_image_loaders(&cc.egui_ctx);
             Ok(Box::<AnalysisAssistant>::default())
@@ -96,7 +96,7 @@ impl Default for AnalysisAssistant {
 }
 
 impl eframe::App for AnalysisAssistant {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         // Load logo texture once
         if self.logo_texture.is_none() {
             let logo_bytes = include_bytes!("../assets/logo.png");
@@ -105,15 +105,11 @@ impl eframe::App for AnalysisAssistant {
             let image_buffer = image.to_rgba8();
             let pixels = image_buffer.as_flat_samples();
             let color_image = egui::ColorImage::from_rgba_unmultiplied(size, pixels.as_slice());
-            self.logo_texture = Some(ctx.load_texture("logo", color_image, Default::default()));
+            self.logo_texture = Some(ui.ctx().load_texture("logo", color_image, Default::default()));
         }
 
-        egui::Window::new("Availability Analysis Assignment Assistant")
-            .auto_sized()
-            .resizable(true)
-            .title_bar(false)
-            .show(ctx, |ui| {
-                egui::Frame::none().inner_margin(5.0).show(ui, |ui| {
+        {
+            egui::Frame::NONE.fill(egui::Color32::WHITE).inner_margin(5.0).show(ui, |ui| {
                     // Draw logo in background at 40% of window width, centered over Team Members
                     if let Some(texture) = &self.logo_texture {
                         let available_rect = ui.available_rect_before_wrap();
@@ -332,7 +328,7 @@ impl eframe::App for AnalysisAssistant {
                         // Copy button with 5px gap
                         ui.add_space(5.0);
                         if ui.small_button("📋").clicked() {
-                            ui.output_mut(|o| o.copied_text = self.display_text.clone());
+                            ui.ctx().copy_text(self.display_text.clone());
                         }
 
                         // Toggle button on the right side
@@ -354,7 +350,7 @@ impl eframe::App for AnalysisAssistant {
                             egui::TextEdit::multiline(&mut self.display_text),
                         );
                     });
-                });
             });
+        }
     }
 }
