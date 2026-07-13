@@ -74,7 +74,7 @@ impl Default for AnalysisAssistant {
                 ("Dane".to_string(), true),
                 ("Dhandapani".to_string(), true),
                 ("Li Chien".to_string(), true),
-                ("Andrea".to_string(), true),
+                ("Enrico".to_string(), true),
                 ("Andrew".to_string(), true),
                 ("Michael".to_string(), true),
             ],
